@@ -2,7 +2,7 @@
 
 ### Collects and prints pseudo-random YouTube links.
 
-![](Images\readme\RYLBasic.png)
+![](Images/readme/RYLBasic.png)
 
 ##### *(10 links being collected)*
 
