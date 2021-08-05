@@ -2,9 +2,13 @@
 
 ### Collects and prints pseudo-random YouTube links.
 
-![](Images/readme/RYLBasic.png)
+##### *(Basic use: 10 links being collected)*
 
-##### *(10 links being collected)*
+![RandomYouTubeLinkCollectorBasic](Images/readme/RYLBasic.png)
+
+##### *(Different ways to display the links)*
+
+![RandomYouTubeLinkCollectorDisplay](Images/readme/RYLDisplay.png)
 
 ## Basic Mechanism:
 

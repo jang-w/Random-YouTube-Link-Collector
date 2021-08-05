@@ -30,8 +30,11 @@ class window(QWidget):
         
         self.showTitles = QRadioButton('Show Titles')
         self.showTitles.setChecked(True)
+        self.showTitles.clicked.connect(self.changeDisplay)
         self.showLinks = QRadioButton('Show Links')
+        self.showLinks.clicked.connect(self.changeDisplay)
         self.showWords = QRadioButton('Show Words')
+        self.showWords.clicked.connect(self.changeDisplay)
         displayL = QVBoxLayout()
         displayL.addWidget(self.showTitles)
         displayL.addWidget(self.showLinks)
@@ -69,13 +72,10 @@ class window(QWidget):
         startL.addWidget(start)
         startL.addWidget(self.status)
 
-
         topL = QHBoxLayout()
         topL.addWidget(self.bonusG)
         topL.addWidget(displayG)
         topL.addLayout(startL)
-
-        
 
         mainL = QGridLayout()
         mainL.addLayout(topL, 0, 0)
@@ -92,7 +92,6 @@ class window(QWidget):
         self.videoBrowser = webdriver.Firefox(options=fire_options, firefox_profile=fp)
 
     def getVideos(self):
-
         self.signals.statusSignal.emit('Starting up...')
 
         while True:
@@ -101,7 +100,7 @@ class window(QWidget):
             except AttributeError:
                 continue
             break
-            
+
         self.signals.statusSignal.emit('Collecting...')
 
         x = 0
@@ -122,7 +121,7 @@ class window(QWidget):
             except selenium.common.exceptions.NoSuchElementException:
                 continue
 
-            self.signals.linkSignal.emit(f'{x}: {self.printLink()}')
+            self.signals.linkSignal.emit(f'{x}: {self.printLink(x)}')
 
         self.signals.statusSignal.emit('Finished!')
 
@@ -130,9 +129,9 @@ class window(QWidget):
         self.videoBrowser.close()
 
     def startRYL(self):
- 
         self.ryl = RunRYL()
         self.threadpool.globalInstance().start(self.ryl)
+        self.linkDisplays = {}
 
     def printUrl(self):
         if not self.bonusG.isChecked():
@@ -143,19 +142,36 @@ class window(QWidget):
             elif self.append.isChecked():
                 urlGet = f'https://youtube.com/results?search_query={self.wordRoll}+{self.addWord.text()}+before%3A2012-08-08'
         return urlGet
+    
+    def printLink(self, count):
+        linkTitle = f'<a href="{self.videoBrowser.current_url}">{self.videoTitle}</a>'
+        linkLink = f'<a href="{self.videoBrowser.current_url}">{self.videoBrowser.current_url}</a>'
+        linkWord = f'<a href="{self.videoBrowser.current_url}">{self.wordRoll}</a>'
 
-    def printLink(self):
+        singleLink = [linkTitle, linkLink, linkWord]
+
+        self.linkDisplays[count] = singleLink
+        
         if self.showTitles.isChecked():
-            link = f'<a href="{self.videoBrowser.current_url}">{self.videoTitle}</a>'
+            return linkTitle
         elif self.showLinks.isChecked():
-            link = f'<a href="{self.videoBrowser.current_url}">{self.videoBrowser.current_url}</a>'
+            return linkLink
         elif self.showWords.isChecked():
-            link = f'<a href="{self.videoBrowser.current_url}">{self.wordRoll}</a>'
-        return link
+            return linkWord
+    
+    def changeDisplay(self):
+        self.linkList.clear()
+        if self.showTitles.isChecked():
+            for x in self.linkDisplays:
+                self.linkList.append(f'{x}: {self.linkDisplays[x][0]}')
+        elif self.showLinks.isChecked():
+            for x in self.linkDisplays:
+                self.linkList.append(f'{x}: {self.linkDisplays[x][1]}')
+        elif self.showWords.isChecked():
+            for x in self.linkDisplays:
+                self.linkList.append(f'{x}: {self.linkDisplays[x][2]}')
 
 if __name__ == '__main__':
     app = QApplication([])
-
     mainWindow = window()
-    
     sys.exit(app.exec_())
